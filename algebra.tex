@@ -1,0 +1,67 @@
+%\documentclass[10pt,oneside,a4paper]{book}
+\documentclass{ctexbook} % 或 article, report 等
+\usepackage{graphicx} % 如果需要插入图片
+\usepackage{amsmath, amssymb} % 数学公式支持
+
+%\usepackage{polynom}
+%%%%%%%%%%%%%%%%% /longdiv %%%%%%%%%%%%%%%%%
+\newcount\gpten % (global) power-of-ten -- tells which digit we are doing
+\countdef\rtot2 % running total -- remainder so far
+\countdef\LDscratch4 % scratch
+
+\def\longdiv#1#2{%
+ \vtop{\normalbaselines \offinterlineskip
+   \setbox\strutbox\hbox{\vrule height 2.1ex depth .5ex width0ex}%
+   \def\showdig{$\underline{\the\LDscratch\strut}$\cr\the\rtot\strut\cr
+       \noalign{\kern-.2ex}}%
+   \global\rtot=#1\relax
+   \count0=\rtot\divide\count0by#2\edef\quotient{\the\count0}%\show\quotient
+   % make list macro out of digits in quotient:
+   \def\temp##1{\ifx##1\temp\else \noexpand\dodig ##1\expandafter\temp\fi}%
+   \edef\routine{\expandafter\temp\quotient\temp}%
+   % process list to give power-of-ten:
+   \def\dodig##1{\global\multiply\gpten by10 }\global\gpten=1 \routine
+   % to display effect of one digit in quotient (zero ignored):
+   \def\dodig##1{\global\divide\gpten by10
+      \LDscratch =\gpten
+      \multiply\LDscratch  by##1%
+      \multiply\LDscratch  by#2%
+      \global\advance\rtot-\LDscratch \relax
+      \ifnum\LDscratch>0 \showdig \fi % must hide \cr in a macro to skip it
+   }%
+   \tabskip=0pt
+   \halign{\hfil##\cr % \halign for entire division problem
+     $\quotient$\strut\cr
+     #2$\,\overline{\vphantom{\big)}%
+     \hbox{\smash{\raise3.5\fontdimen8\textfont3\hbox{$\big)$}}}%
+     \mkern2mu \the\rtot}$\cr\noalign{\kern-.2ex}
+     \routine \cr % do each digit in quotient
+}}}
+%%%%%%%%%%%%%%%%% end /longdiv %%%%%%%%%%%%%%%%%
+
+%导言区
+%宏包
+\usepackage{tikz}
+\usepackage{tabularray}
+\usepackage[a4paper, margin=1in]{geometry} % 设置 1 英寸边距
+\usepackage{float} % 引入 float 宏包,用于定位表格位置[H]
+
+% 定义无编号的章节标题
+\CTEXsetup[name={第,章}]{section}
+\CTEXsetup[name={第,节}]{subsection}
+\CTEXsetup[number={\chinese{section}}]{section}
+\CTEXsetup[number={\chinese{subsection}}]{subsection}
+
+\begin{document}
+%正文内容
+
+\title{Elements of Algebra}
+\author{Leonhard Euler}
+\date{\today}
+\maketitle
+
+\tableofcontents
+\input{chapter1/chapter1.tex}
+
+\end{document}
+%此后的内容会被忽略
